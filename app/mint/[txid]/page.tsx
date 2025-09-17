@@ -1,4 +1,5 @@
 // app/mint/[txid]/page.tsx
+import Link from "next/link";
 import { fetchFairminter, fetchFairmintsFor } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
@@ -73,7 +74,7 @@ export default async function FairminterPage({ params }: PageProps) {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold">
-            XCP.FUN
+            <Link href="/">XCP.FUN</Link>
           </h1>
         </div>
 

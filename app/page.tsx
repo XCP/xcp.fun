@@ -1,4 +1,5 @@
 // app/page.tsx
+import Link from "next/link";
 import { fetchFairminters } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
@@ -51,7 +52,7 @@ export default async function Home() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="text-center mb-12 mt-4 md:mt-8">
         <h1 className="text-6xl font-bold mb-4">
-          XCP.FUN
+          <Link href="/">XCP.FUN</Link>
         </h1>
         <a href="/board" className="text-sm text-gray-500 hover:text-gray-700">
           🔬 View all fairminters →
