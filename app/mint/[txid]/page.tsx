@@ -3,7 +3,6 @@ import { fetchFairminter, fetchFairmintsFor } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
 import { formatNumber, formatPrice } from "@/lib/formatters";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type PageProps = {
@@ -74,7 +73,7 @@ export default async function FairminterPage({ params }: PageProps) {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold">
-            <a href="/">XCP.FUN</a>
+            XCP.FUN
           </h1>
         </div>
 

@@ -23,13 +23,16 @@ type Fairminter = {
   divisible: boolean;
   lock_quantity: boolean;
   minted_asset_commission_int: number;
-  description?: string;
+  description?: string | null;
   price_normalized?: string;
   hard_cap_normalized?: string;
   soft_cap_normalized?: string;
   earned_quantity_normalized?: string;
   max_mint_per_tx_normalized?: string;
   max_mint_per_address_normalized?: string;
+  premint_quantity_normalized?: string;
+  quantity_by_price_normalized?: string;
+  lock_description?: boolean;
 };
 
 type FairminterGridProps = {
@@ -57,7 +60,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
   // Track if sort has been manually changed from default
   const [customSort, setCustomSort] = useState<string | null>(initialSort || null);
   const [filterType, setFilterType] = useState<"all" | "xcp-burn" | "xcp-mint" | "btc-mint">(
-    (initialFilter as any) || "all"
+    (initialFilter as "all" | "xcp-burn" | "xcp-mint" | "btc-mint" | undefined) || "all"
   );
   const router = useRouter();
 
@@ -193,7 +196,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
       </div>
 
       <div className="grid gap-3">
-        {sortedData.map((f, index) => {
+        {sortedData.map((f) => {
           const progress = f.hard_cap ? (f.earned_quantity / f.hard_cap) * 100 : 0;
           const paymentType = getPaymentType(f);
 
@@ -339,28 +342,28 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                     <div>
                       <div className="text-xs text-gray-500 mb-0.5">Minted</div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {formatNumber(parseFloat(f.earned_quantity_normalized))}
+                        {formatNumber(parseFloat(f.earned_quantity_normalized || "0"))}
                       </div>
                     </div>
                     <div>
                       <div className="text-xs text-gray-500 mb-0.5">Supply</div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {f.hard_cap === 0 ? "∞" : formatNumber(parseFloat(f.hard_cap_normalized))}
+                        {f.hard_cap === 0 ? "∞" : formatNumber(parseFloat(f.hard_cap_normalized || "0"))}
                         {f.soft_cap > 0 && (
                           <span className="text-xs text-gray-500 ml-1 font-normal">
-                            (soft: {formatNumber(parseFloat(f.soft_cap_normalized))})
+                            (soft: {formatNumber(parseFloat(f.soft_cap_normalized || "0"))})
                           </span>
                         )}
                       </div>
                     </div>
                     <div>
-                      {parseFloat(f.premint_quantity_normalized) > 0 && f.minted_asset_commission_int > 0 ? (
+                      {parseFloat(f.premint_quantity_normalized || "0") > 0 && f.minted_asset_commission_int > 0 ? (
                         // Both premint and commission - show side by side
                         <div className="flex gap-2">
                           <div className="flex-1">
                             <div className="text-xs text-gray-500 mb-0.5">Premine</div>
                             <div className="text-sm font-semibold text-gray-900">
-                              {formatNumber(parseFloat(f.premint_quantity_normalized))}
+                              {formatNumber(parseFloat(f.premint_quantity_normalized || "0"))}
                             </div>
                           </div>
                           <div className="flex-1">
@@ -373,12 +376,12 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                             </div>
                           </div>
                         </div>
-                      ) : parseFloat(f.premint_quantity_normalized) > 0 ? (
+                      ) : parseFloat(f.premint_quantity_normalized || "0") > 0 ? (
                         // Only premint
                         <>
                           <div className="text-xs text-gray-500 mb-0.5">Premine</div>
                           <div className="text-sm font-semibold text-gray-900">
-                            {formatNumber(parseFloat(f.premint_quantity_normalized))}
+                            {formatNumber(parseFloat(f.premint_quantity_normalized || "0"))}
                           </div>
                         </>
                       ) : f.minted_asset_commission_int > 0 ? (
@@ -405,7 +408,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                         {paymentType === "mint-btc"
                           ? formatNumber(parseFloat(f.max_mint_per_tx_normalized || "0"))
                           : (() => {
-                              const price = parseFloat(f.price_normalized);
+                              const price = parseFloat(f.price_normalized || "0");
                               if (price === 0) return "0 XCP";
                               // Format to 8 decimals and remove trailing zeros
                               const formatted = price.toFixed(8).replace(/\.?0+$/, '');
@@ -420,12 +423,12 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                           if (paymentType === "mint-btc") {
                             // BTC fee divided by how many units you get per mint
                             const btcFeePerMint = (prices.btcFeeRate * 250) / 100_000_000;
-                            const unitsPerMint = parseFloat(f.max_mint_per_tx_normalized);
+                            const unitsPerMint = parseFloat(f.max_mint_per_tx_normalized || "0");
                             const pricePerUnit = (btcFeePerMint * prices.btcUsd) / unitsPerMint;
                             return `~${formatPrice(pricePerUnit)}`;
                           } else {
                             // XCP price is already per unit (per lot)
-                            const xcpPerUnit = parseFloat(f.price_normalized);
+                            const xcpPerUnit = parseFloat(f.price_normalized || "0");
                             const pricePerUnit = xcpPerUnit * prices.xcpBtc * prices.btcUsd;
                             return `~${formatPrice(pricePerUnit)}`;
                           }
@@ -455,7 +458,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                             )}
                           </div>
                         ) : f.max_mint_per_address > 0 ? (
-                          formatNumber(parseFloat(f.max_mint_per_address_normalized))
+                          formatNumber(parseFloat(f.max_mint_per_address_normalized || "0"))
                         ) : null}
                       </div>
                     </div>

@@ -39,5 +39,5 @@ export async function fetchMempoolFairmints(limit = 20) {
   const res = await fetch(url, { next: { revalidate: 10 }});
   if (!res.ok) throw new Error(`fetchMempoolFairmints ${res.status}`);
   const { result } = await res.json();
-  return (result as any[]).slice(0, limit);
+  return (result as Array<{ params?: { asset?: string }, tx_hash?: string }>).slice(0, limit);
 }

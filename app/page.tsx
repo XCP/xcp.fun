@@ -2,6 +2,7 @@
 import { fetchFairminters } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
+import { Fairminter } from "@/lib/types";
 import SpecFairminterGrid from "@/components/SpecFairminterGrid";
 
 export default async function Home() {
@@ -15,7 +16,7 @@ export default async function Home() {
 
   // No spec filter for now - showing all fairminters
   // To enable XCP-420 filter, uncomment the condition below:
-  const isSpecFairminter = (f: any) => {
+  const isSpecFairminter = (f: Fairminter) => {
     // Filter out assets starting with "A"
     if (f.asset && f.asset.startsWith("A")) return false;
     return true; // Remove this line and uncomment below to enable filter
@@ -50,7 +51,7 @@ export default async function Home() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="text-center mb-12 mt-4 md:mt-8">
         <h1 className="text-6xl font-bold mb-4">
-          <a href="/">XCP.FUN</a>
+          XCP.FUN
         </h1>
         <a href="/board" className="text-sm text-gray-500 hover:text-gray-700">
           🔬 View all fairminters →
@@ -91,7 +92,7 @@ export default async function Home() {
 
       <div className="bg-amber-50 rounded-lg p-4 mt-4 mb-8 border border-amber-200">
         <p className="text-sm text-amber-900">
-          💡 If an XCP-420 mint doesn't reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span>. If it succeeds, the XCP committed gets burned.
+          💡 If an XCP-420 mint doesn&apos;t reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span>. If it succeeds, the XCP committed gets burned.
         </p>
       </div>
 

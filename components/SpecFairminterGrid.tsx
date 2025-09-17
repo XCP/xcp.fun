@@ -20,7 +20,7 @@ type Fairminter = {
   lock_quantity: boolean;
   minted_asset_commission_int: number;
   max_mint_per_address: number;
-  description?: string;
+  description?: string | null;
   price_normalized?: string;
   hard_cap_normalized?: string;
   soft_cap_normalized?: string;

@@ -1,7 +1,5 @@
 // app/board/page.tsx
-import Link from "next/link";
 import { fetchFairminters } from "@/lib/api";
-import { FMStatus } from "@/lib/types";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
 import MempoolStrip from "@/components/MempoolStrip";
@@ -25,7 +23,7 @@ export default async function Board({ searchParams }: PageProps) {
       <div className="mb-8">
         <div className="flex justify-between items-start">
           <h1 className="text-4xl font-bold">
-            <a href="/">XCP.FUN</a>
+            XCP.FUN
           </h1>
           <div className="flex gap-6 text-sm text-gray-500">
             <div className="text-right">
