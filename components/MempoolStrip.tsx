@@ -8,7 +8,9 @@ export default async function MempoolStrip() {
     if (!items || items.length === 0) return null;
 
     const mints = items
-      .filter((e: { params?: { asset?: string }, tx_hash?: string }) => e.params?.asset && e.tx_hash)
+      .filter((e): e is { params: { asset: string }, tx_hash: string } =>
+        Boolean(e.params?.asset && e.tx_hash)
+      )
       .slice(0, 10);
 
     if (mints.length === 0) return null;
@@ -20,7 +22,7 @@ export default async function MempoolStrip() {
           <span className="font-semibold text-sm text-green-900">In the Mempool ({mints.length} txs)</span>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
-          {mints.map((item: { params: { asset: string }, tx_hash: string }, i: number) => (
+          {mints.map((item, i) => (
             <a
               key={`${item.tx_hash}-${i}`}
               href={`/mint/${item.tx_hash}`}
