@@ -5,6 +5,7 @@ import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
 import { Fairminter } from "@/lib/types";
 import SpecFairminterGrid from "@/components/SpecFairminterGrid";
+import SkeletonCards from "@/components/SkeletonCards";
 
 export default async function Home() {
   const [openData, pendingData, closedData, currentBlock, prices] = await Promise.all([
@@ -15,24 +16,22 @@ export default async function Home() {
     getPrices()
   ]);
 
-  // No spec filter for now - showing all fairminters
-  // To enable XCP-420 filter, uncomment the condition below:
+  // Apply XCP-420 filter for homepage
   const isSpecFairminter = (f: Fairminter) => {
     // Filter out assets starting with "A"
     if (f.asset && f.asset.startsWith("A")) return false;
-    return true; // Remove this line and uncomment below to enable filter
-    /*
+
+    // Check if it matches XCP-420 standard
     return (
       f.hard_cap === 10000000 &&
       f.soft_cap === 4200000 &&
-      parseFloat(f.price_normalized) === 0.1 &&
-      parseFloat(f.quantity_by_price_normalized) === 1000 &&
+      parseFloat(f.price_normalized || "0") === 0.1 &&
+      parseFloat(f.quantity_by_price_normalized || "0") === 1000 &&
       f.max_mint_per_address === 35000 && // 35 mints * 1000 units per mint
       f.end_block - f.start_block === 1000 && // 1000 blocks duration
       f.lock_quantity === true &&
       f.burn_payment === true
     );
-    */
   };
 
   const litFairminters = openData.filter(isSpecFairminter);
@@ -97,84 +96,100 @@ export default async function Home() {
         </p>
       </div>
 
-      {litFairminters.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-            <img src="/parrot.gif" alt="Party Parrot" className="w-7 h-7" />
-            Lit <span className="text-gray-500 font-normal text-lg">(Minting now)</span>
-          </h2>
-          <SpecFairminterGrid
-            fairminters={litFairminters.slice(0, 30)}
-            currentBlock={currentBlock}
-            prices={prices}
-            status="lit"
-          />
-          {litFairminters.length > 30 && (
-            <div className="text-right">
-              <a href="/board?tab=open&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
-                View All →
-              </a>
-            </div>
-          )}
-        </section>
-      )}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+          <img src="/parrot.gif" alt="Party Parrot" className="w-7 h-7" />
+          Lit <span className="text-gray-500 font-normal text-lg">(Minting now)</span>
+        </h2>
+        {litFairminters.length > 0 ? (
+          <>
+            <SpecFairminterGrid
+              fairminters={litFairminters.slice(0, 30)}
+              currentBlock={currentBlock}
+              prices={prices}
+              status="lit"
+            />
+            {litFairminters.length > 30 && (
+              <div className="text-right">
+                <a href="/board?tab=open&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                  View All →
+                </a>
+              </div>
+            )}
+          </>
+        ) : (
+          <SkeletonCards count={3} />
+        )}
+      </section>
 
-      {rolledUpFairminters.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">🌿 Rolled Up <span className="text-gray-500 font-normal text-lg">(Upcoming — ready but not lit)</span></h2>
-          <SpecFairminterGrid
-            fairminters={rolledUpFairminters.slice(0, 10)}
-            currentBlock={currentBlock}
-            prices={prices}
-            status="rolled"
-          />
-          {rolledUpFairminters.length > 10 && (
-            <div className="text-right">
-              <a href="/board?tab=pending&sort=starting-soon" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
-                View All →
-              </a>
-            </div>
-          )}
-        </section>
-      )}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-4">🌿 Rolled Up <span className="text-gray-500 font-normal text-lg">(Upcoming — ready but not lit)</span></h2>
+        {rolledUpFairminters.length > 0 ? (
+          <>
+            <SpecFairminterGrid
+              fairminters={rolledUpFairminters.slice(0, 10)}
+              currentBlock={currentBlock}
+              prices={prices}
+              status="rolled"
+            />
+            {rolledUpFairminters.length > 10 && (
+              <div className="text-right">
+                <a href="/board?tab=pending&sort=starting-soon" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                  View All →
+                </a>
+              </div>
+            )}
+          </>
+        ) : (
+          <SkeletonCards count={2} />
+        )}
+      </section>
 
-      {burnedFairminters.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">🔥 Burned <span className="text-gray-500 font-normal text-lg">(Successful — XCP destroyed, token survives)</span></h2>
-          <SpecFairminterGrid
-            fairminters={burnedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
-            currentBlock={currentBlock}
-            prices={prices}
-            status="burned"
-          />
-          {burnedFairminters.length > 10 && (
-            <div className="text-right">
-              <a href="/board?tab=closed&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
-                View All →
-              </a>
-            </div>
-          )}
-        </section>
-      )}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-4">🔥 Burned <span className="text-gray-500 font-normal text-lg">(Successful — XCP destroyed, token survives)</span></h2>
+        {burnedFairminters.length > 0 ? (
+          <>
+            <SpecFairminterGrid
+              fairminters={burnedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
+              currentBlock={currentBlock}
+              prices={prices}
+              status="burned"
+            />
+            {burnedFairminters.length > 10 && (
+              <div className="text-right">
+                <a href="/board?tab=closed&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                  View All →
+                </a>
+              </div>
+            )}
+          </>
+        ) : (
+          <SkeletonCards count={2} />
+        )}
+      </section>
 
-      {ashedFairminters.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">💀 Ashed <span className="text-gray-500 font-normal text-lg">(Failed — XCP refunded, token destroyed)</span></h2>
-          <SpecFairminterGrid
-            fairminters={ashedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
-            currentBlock={currentBlock}
-            prices={prices}
-            status="ashed"
-          />
-          {ashedFairminters.length > 10 && (
-            <div className="text-right">
-              <a href="/board?tab=closed&sort=progress-low" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
-                View All →
-              </a>
-            </div>
-          )}
-        </section>
-      )}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-4">💀 Ashed <span className="text-gray-500 font-normal text-lg">(Failed — XCP refunded, token destroyed)</span></h2>
+        {ashedFairminters.length > 0 ? (
+          <>
+            <SpecFairminterGrid
+              fairminters={ashedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
+              currentBlock={currentBlock}
+              prices={prices}
+              status="ashed"
+            />
+            {ashedFairminters.length > 10 && (
+              <div className="text-right">
+                <a href="/board?tab=closed&sort=progress-low" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                  View All →
+                </a>
+              </div>
+            )}
+          </>
+        ) : (
+          <SkeletonCards count={2} />
+        )}
+      </section>
     </main>
   );
 }
