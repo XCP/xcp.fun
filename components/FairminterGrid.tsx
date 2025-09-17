@@ -80,9 +80,10 @@ export default function FairminterGrid({
       const bIs420 = isXCP420(b) !== false;
 
       // If one is XCP-420 and the other isn't, XCP-420 comes first
-      if (aIs420 && !bIs420) return -1;
-      if (!aIs420 && bIs420) return 1;
-      // If both are XCP-420 or both aren't, continue with normal sort
+      if (aIs420 !== bIs420) {
+        return aIs420 ? -1 : 1;
+      }
+      // If both are XCP-420 or both aren't, continue with the actual sort logic below
     }
 
     switch (sortBy) {
