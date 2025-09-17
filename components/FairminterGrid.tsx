@@ -205,6 +205,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
             parseFloat(f.quantity_by_price_normalized!) === 1000 &&
             parseFloat(f.max_mint_per_address_normalized!) <= 35000 && // Max 35 mints (35,000 tokens) per address
             parseFloat(f.max_mint_per_address_normalized!) > 0 && // Must have a per-address limit
+            f.max_mint_per_tx === f.max_mint_per_address && // Allow all mints in one tx
             f.end_block - f.start_block >= 900 && // 900-1100 blocks duration
             f.end_block - f.start_block <= 1100 &&
             f.lock_quantity === true &&
