@@ -45,6 +45,7 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
           currentBlock={currentBlock}
           prices={prices}
           tab={status === "lit" ? "open" : status === "rolled" ? "pending" : "closed"}
+          homepageStatus={status}
         />
       ))}
 

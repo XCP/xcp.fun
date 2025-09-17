@@ -12,9 +12,10 @@ type FairminterCardProps = {
     btcFeeRate: number;
   };
   tab?: string;
+  homepageStatus?: "lit" | "burned" | "rolled" | "ashed";
 };
 
-export default function FairminterCard({ fairminter: f, currentBlock, prices, tab = "open" }: FairminterCardProps) {
+export default function FairminterCard({ fairminter: f, currentBlock, prices, tab = "open", homepageStatus }: FairminterCardProps) {
   const progress = f.hard_cap ? (f.earned_quantity / f.hard_cap) * 100 : 0;
 
   // Helper function to determine payment type
@@ -98,7 +99,11 @@ export default function FairminterCard({ fairminter: f, currentBlock, prices, ta
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h2 className="text-lg font-bold text-gray-900">
-                    {f.asset} {paymentType === "burn" && "🔥"}
+                    {f.asset} {homepageStatus
+                      ? (homepageStatus === "ashed" ? "💀" :
+                         homepageStatus === "burned" ? "🔥" :
+                         homepageStatus === "rolled" ? "⌚" : "")
+                      : (paymentType === "burn" && "🔥")}
                   </h2>
                 </div>
                 <div className="flex gap-1">
