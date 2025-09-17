@@ -18,9 +18,6 @@ export default async function Home() {
 
   // Apply XCP-420 filter for homepage
   const isSpecFairminter = (f: Fairminter) => {
-    // Filter out assets starting with "A"
-    if (f.asset && f.asset.startsWith("A")) return false;
-
     // Check if it matches XCP-420 standard
     return (
       f.hard_cap === 10000000 &&

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { formatNumber, formatPrice } from "@/lib/formatters";
 
 type Fairminter = {
@@ -108,10 +107,9 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
         const isEndingSoon = status === "lit" && blocksRemaining !== null && blocksRemaining > 0 && blocksRemaining < 100;
 
         return (
-          <Link
+          <div
             key={f.tx_hash}
-            href={`/mint/${f.tx_hash}`}
-            className="block border border-gray-200 rounded-lg hover:shadow-lg transition-shadow bg-white overflow-hidden"
+            className="block border border-gray-200 rounded-lg bg-white overflow-hidden"
           >
             <div className="flex flex-col md:flex-row">
               {/* Left section with image and basic info */}
@@ -208,7 +206,7 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         );
       })}
 

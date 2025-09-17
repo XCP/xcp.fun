@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatNumber, formatPrice } from "@/lib/formatters";
 
@@ -83,9 +82,6 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
 
   // Filter the data based on type selection
   const filteredData = fairminters.filter(fm => {
-    // Filter out assets starting with "A"
-    if (fm.asset && fm.asset.startsWith("A")) return false;
-
     if (filterType === "all") return true;
     const paymentType = getPaymentType(fm);
     if (filterType === "xcp-burn") return paymentType === "burn";
@@ -265,10 +261,9 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
           const isFullyMinted = progress >= 100 && tab === "closed";
 
           return (
-            <Link
+            <div
               key={f.tx_hash}
-              href={`/mint/${f.tx_hash}`}
-              className={`block rounded-lg hover:shadow-lg transition-shadow bg-white overflow-hidden relative ${
+              className={`block rounded-lg bg-white overflow-hidden relative ${
                 isXCP420 ? "" : "border-2 border-gray-200"
               }`}
               style={
@@ -480,7 +475,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
           );
         })}
 
