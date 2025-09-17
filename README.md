@@ -1,84 +1,33 @@
-# XCP.FUN - Burn-only Fairmints Tracker
+# XCP.FUN
 
-A clean, DB-less Next.js app that filters and displays Counterparty burn-only fairmints matching specific criteria:
-- ✅ Burn payment only
-- ✅ 420 XCP soft cap
-- ✅ 1000 XCP hard cap
-- ✅ 1,000 blocks duration
+🔥 **Burn after minting**
 
-## Features
+Track XCP-420 standard fairminters on Counterparty.
 
-- **Three tabs**: Minting (open), Scheduled (pending), Completed (closed)
-- **Live mempool strip**: Shows currently minting assets
-- **Detail pages**: View individual fairminter details and recent mints
-- **No database required**: Uses ISR caching with the Counterparty v2 API
-- **Responsive design**: Clean, modern UI with Tailwind CSS
+## What is XCP-420?
 
-## Tech Stack
+A fair launch standard for Counterparty tokens with these fixed parameters:
 
-- Next.js 15.5 (App Router)
-- TypeScript
-- Tailwind CSS
-- Counterparty v2 API
-- ISR (Incremental Static Regeneration) for caching
+- **10M** hard cap
+- **4.2M** soft cap
+- **0.1 XCP** burned per mint
+- **1000 tokens** earned per mint
+- **35 mints** max per address
+- **1000 blocks** duration (~7 days)
+- **Supply locked** (no inflation)
+- **No premine** (fair launch)
 
-## Getting Started
+## How it works
 
-```bash
-# Install dependencies
-npm install
+1. **Lit** 🔥 - Active mints accepting XCP burns
+2. **Rolled Up** 🌿 - Scheduled to start soon
+3. **Burned** 💀 - Successful (soft cap reached, XCP burned forever)
+4. **Ashed** ⚰️ - Failed (soft cap missed, XCP automatically refunded)
 
-# Start development server
-npm run dev
+## Fair by design
 
-# Build for production
-npm run build
+If a mint doesn't reach its 4.2M soft cap, the Counterparty protocol **automatically refunds all XCP** to participants. No trust required.
 
-# Start production server
-npm start
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
-
-## Environment
-
-No environment variables needed! The app connects directly to the public Counterparty API.
-
-## API Endpoints Used
-
-- `GET /v2/fairminters` - List fairminters by status
-- `GET /v2/fairminters/{tx_hash}` - Get fairminter details
-- `GET /v2/fairminters/{tx_hash}/fairmints` - Get mints for a fairminter
-- `GET /v2/mempool/events/NEW_FAIRMINT` - Live mempool events
-
-## Caching Strategy
-
-- **Open mints**: 30 second revalidation
-- **Pending mints**: 60 second revalidation
-- **Completed mints**: 120 second revalidation
-- **Mempool**: 10 second revalidation
-
-## Spec Filter
-
-The app only shows fairminters that match ALL of these criteria:
-```typescript
-- burn_payment === true
-- (end_block - start_block) === 1000
-- price * soft_cap === 420 XCP (in satoshis)
-- price * hard_cap === 1000 XCP (in satoshis)
-```
-
-## Deploy on Vercel
-
-The easiest way to deploy is via Vercel:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/xcp-fun)
-
-Or use the CLI:
-```bash
-vercel
-```
-
-## License
-
-MIT
+Visit [xcp.fun](https://xcp.fun) to explore active mints.

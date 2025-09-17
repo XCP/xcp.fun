@@ -13,8 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "XCP.FUN - Burn-only Fairmints",
-  description: "Track Counterparty burn-only fairmints with 420/1000 XCP caps and 1,000 block duration",
+  title: "XCP.FUN - Burn after minting",
+  description: "10M hard cap • 4.2M soft cap • 0.1 XCP per mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine",
+  metadataBase: new URL('https://xcp.fun'),
+  openGraph: {
+    title: 'XCP.FUN - Burn after minting',
+    description: '10M hard cap • 4.2M soft cap • 0.1 XCP per mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine',
+    url: 'https://xcp.fun',
+    siteName: 'XCP.FUN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'XCP.FUN - Burn after minting',
+    description: '10M hard cap • 4.2M soft cap • Supply locked • No Premine',
+  },
 };
 
 export default function RootLayout({
