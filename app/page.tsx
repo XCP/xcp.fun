@@ -80,12 +80,12 @@ export default async function Home() {
             Only fairminters that follow the XCP-420 standard are featured on this page. The standard:
             <span className="font-mono text-xs block mt-2">
               <span className="hidden md:inline">
-                10M hard cap • 4.2M soft cap • 1000 earned per mint • 0.1 XCP burned to mint • Max 35 mints per address • ~1000 blocks • Supply locked • No Premine
+                10M hard cap • 4.2M soft cap • 1000 earned per mint • 0.1 XCP burned to mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine
               </span>
               <span className="md:hidden">
                 10M hard cap • 4.2M soft cap<br />
                 1000 earned per mint • 0.1 XCP burned<br />
-                Max 35 mints per address • ~1000 blocks<br />
+                Max 35 mints per address • 1000 blocks<br />
                 Supply locked • No Premine
               </span>
             </span>
