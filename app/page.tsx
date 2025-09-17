@@ -3,7 +3,7 @@ import Link from "next/link";
 import { fetchFairminters } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
-import { isXCP420 } from "@/lib/xcp420";
+import { isXCP420, hasXCP420Compliance } from "@/lib/xcp420";
 import SpecFairminterGrid from "@/components/SpecFairminterGrid";
 import SkeletonCards from "@/components/SkeletonCards";
 
@@ -16,18 +16,18 @@ export default async function Home() {
     getPrices()
   ]);
 
-  // Apply XCP-420 filter for homepage
-  const litFairminters = openData.filter(isXCP420);
-  const rolledUpFairminters = pendingData.filter(isXCP420);
+  // Apply XCP-420 filter for homepage (both strict and loose)
+  const litFairminters = openData.filter(f => hasXCP420Compliance(isXCP420(f)));
+  const rolledUpFairminters = pendingData.filter(f => hasXCP420Compliance(isXCP420(f)));
 
   // For burned, we need to check if soft cap was reached (or no soft cap)
   const burnedFairminters = closedData.filter(f =>
-    isXCP420(f) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
+    hasXCP420Compliance(isXCP420(f)) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
   );
 
   // For ashed, XCP-420 fairminters that didn't reach soft cap
   const ashedFairminters = closedData.filter(f =>
-    isXCP420(f) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
+    hasXCP420Compliance(isXCP420(f)) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
   );
 
   return (
@@ -103,7 +103,7 @@ export default async function Home() {
             )}
           </>
         ) : (
-          <SkeletonCards count={3} />
+          <SkeletonCards count={1} />
         )}
       </section>
 
@@ -126,7 +126,7 @@ export default async function Home() {
             )}
           </>
         ) : (
-          <SkeletonCards count={2} />
+          <SkeletonCards count={1} />
         )}
       </section>
 
@@ -149,7 +149,7 @@ export default async function Home() {
             )}
           </>
         ) : (
-          <SkeletonCards count={2} />
+          <SkeletonCards count={1} />
         )}
       </section>
 
@@ -172,7 +172,7 @@ export default async function Home() {
             )}
           </>
         ) : (
-          <SkeletonCards count={2} />
+          <SkeletonCards count={1} />
         )}
       </section>
     </main>

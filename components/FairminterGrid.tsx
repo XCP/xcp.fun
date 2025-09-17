@@ -169,7 +169,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
           const paymentType = getPaymentType(f);
 
           // Check if this is XCP-420 compliant
-          const isXCP420Compliant = isXCP420(f);
+          const xcp420Compliance = isXCP420(f);
 
           // Calculate time display based on status
           let timeDisplay = '';
@@ -227,10 +227,10 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
             <div
               key={f.tx_hash}
               className={`block rounded-lg bg-white overflow-hidden relative ${
-                isXCP420Compliant ? "" : "border-2 border-gray-200"
+                xcp420Compliance ? "" : "border-2 border-gray-200"
               }`}
               style={
-                isXCP420Compliant ? {
+                xcp420Compliance ? {
                   background: "white",
                   padding: "2px",
                   backgroundImage: "linear-gradient(45deg, #22c55e, #3b82f6, #a855f7, #ec4899, #22c55e)",
@@ -239,7 +239,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                 } : {}
               }
             >
-              <div className={`${isXCP420Compliant ? "bg-white rounded-lg" : ""} flex flex-col`}>
+              <div className={`${xcp420Compliance ? "bg-white rounded-lg" : ""} flex flex-col`}>
                 <div className="flex flex-col md:flex-row">
                   <div className="flex gap-4 flex-grow md:w-1/3 p-4">
                   <div className="flex-shrink-0">
@@ -352,6 +352,14 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                               const commission = f.minted_asset_commission_int / 1000000;
                               return commission % 1 === 0 ? `${commission}%` : `${commission.toFixed(1)}%`;
                             })()}
+                          </div>
+                        </>
+                      ) : xcp420Compliance ? (
+                        // XCP-420 compliance
+                        <>
+                          <div className="text-xs text-gray-500 mb-0.5">XCP-420</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {xcp420Compliance === "strict" ? "Strict" : "Loose"}
                           </div>
                         </>
                       ) : (
