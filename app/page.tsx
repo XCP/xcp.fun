@@ -19,15 +19,18 @@ export default async function Home() {
   // Apply XCP-420 filter for homepage
   const isSpecFairminter = (f: Fairminter) => {
     // Check if it matches XCP-420 standard
+    // With verbose=true, we always get normalized values
     return (
       f.hard_cap === 10000000 &&
       f.soft_cap === 4200000 &&
-      parseFloat(f.price_normalized || "0") === 0.1 &&
-      parseFloat(f.quantity_by_price_normalized || "0") === 1000 &&
-      f.max_mint_per_address === 35000 && // 35 mints * 1000 units per mint
+      parseFloat(f.price_normalized!) === 0.1 &&
+      parseFloat(f.quantity_by_price_normalized!) === 1000 &&
+      parseFloat(f.max_mint_per_address_normalized!) <= 35000 && // Max 35 mints (35,000 tokens) per address
+      parseFloat(f.max_mint_per_address_normalized!) > 0 && // Must have a per-address limit
       f.end_block - f.start_block === 1000 && // 1000 blocks duration
       f.lock_quantity === true &&
-      f.burn_payment === true
+      f.burn_payment === true &&
+      f.divisible === true // 8 decimal places
     );
   };
 
@@ -64,7 +67,9 @@ export default async function Home() {
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-bold text-lg">XCP-420 Standard</h3>
             <a
-              href="/create?preset=xcp420"
+              href="https://github.com/XCP/xcp.fun/blob/master/docs/xcp-420.md"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs md:text-sm"
             >
               🎲 Roll One

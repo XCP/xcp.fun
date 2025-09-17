@@ -197,15 +197,18 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
           const paymentType = getPaymentType(f);
 
           // Check if this is XCP-420 compliant
+          // With verbose=true, we always get normalized values
           const isXCP420 = (
             f.hard_cap === 10000000 &&
             f.soft_cap === 4200000 &&
-            parseFloat(f.price_normalized || "0") === 0.1 &&
-            parseFloat(f.quantity_by_price_normalized || "0") === 1000 &&
-            f.max_mint_per_address === 35000 &&
+            parseFloat(f.price_normalized!) === 0.1 &&
+            parseFloat(f.quantity_by_price_normalized!) === 1000 &&
+            parseFloat(f.max_mint_per_address_normalized!) <= 35000 && // Max 35 mints (35,000 tokens) per address
+            parseFloat(f.max_mint_per_address_normalized!) > 0 && // Must have a per-address limit
             f.end_block - f.start_block === 1000 &&
             f.lock_quantity === true &&
-            f.burn_payment === true
+            f.burn_payment === true &&
+            f.divisible === true // 8 decimal places
           );
 
           // Calculate time display based on status
@@ -276,8 +279,9 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                 } : {}
               }
             >
-              <div className={`${isXCP420 ? "bg-white rounded-lg" : ""} flex flex-col md:flex-row`}>
-                <div className="flex gap-4 flex-grow md:w-1/3 p-4">
+              <div className={`${isXCP420 ? "bg-white rounded-lg" : ""} flex flex-col`}>
+                <div className="flex flex-col md:flex-row">
+                  <div className="flex gap-4 flex-grow md:w-1/3 p-4">
                   <div className="flex-shrink-0">
                     <img
                       src={`https://app.xcp.io/img/full/${f.asset}`}
@@ -458,7 +462,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center px-4 border-l border-gray-200">
+                  <div className="hidden md:flex items-center px-4 border-l border-gray-200">
                     <button
                       className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer"
                       style={{ backgroundColor: "#161624" }}
@@ -474,6 +478,22 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                     </button>
                   </div>
                 </div>
+                <div className="md:hidden px-4 pb-4">
+                  <button
+                    className="w-full px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
+                    style={{ backgroundColor: "#161624" }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1a1b2e"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#161624"}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(`https://horizon.market/explorer/tx/${f.tx_hash}`, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    ↗️ View TX
+                  </button>
+                </div>
+              </div>
               </div>
             </div>
           );

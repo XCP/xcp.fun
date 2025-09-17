@@ -36,6 +36,7 @@ export type Fairminter = {
   soft_cap_normalized?: string;
   quantity_by_price_normalized?: string;
   max_mint_per_tx_normalized?: string;
+  max_mint_per_address_normalized?: string;
   premint_quantity_normalized?: string;
   earned_quantity_normalized?: string;
   commission_normalized?: string;
