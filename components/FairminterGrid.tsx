@@ -41,9 +41,11 @@ type FairminterGridProps = {
     btcUsd: number;
     btcFeeRate: number;
   };
+  initialFilter?: string;
+  initialSort?: string;
 };
 
-export default function FairminterGrid({ fairminters, currentBlock, tab, prices }: FairminterGridProps) {
+export default function FairminterGrid({ fairminters, currentBlock, tab, prices, initialFilter, initialSort }: FairminterGridProps) {
   // Set default sort based on tab
   const getDefaultSort = () => {
     if (tab === "open") return "progress-high";
@@ -53,8 +55,10 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
   };
 
   // Track if sort has been manually changed from default
-  const [customSort, setCustomSort] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<"all" | "xcp-burn" | "xcp-mint" | "btc-mint">("all");
+  const [customSort, setCustomSort] = useState<string | null>(initialSort || null);
+  const [filterType, setFilterType] = useState<"all" | "xcp-burn" | "xcp-mint" | "btc-mint">(
+    (initialFilter as any) || "all"
+  );
   const router = useRouter();
 
   // Use custom sort if set, otherwise use default for current tab
@@ -76,6 +80,9 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
 
   // Filter the data based on type selection
   const filteredData = fairminters.filter(fm => {
+    // Filter out assets starting with "A"
+    if (fm.asset && fm.asset.startsWith("A")) return false;
+
     if (filterType === "all") return true;
     const paymentType = getPaymentType(fm);
     if (filterType === "xcp-burn") return paymentType === "burn";
@@ -186,9 +193,21 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
       </div>
 
       <div className="grid gap-3">
-        {sortedData.map((f) => {
+        {sortedData.map((f, index) => {
           const progress = f.hard_cap ? (f.earned_quantity / f.hard_cap) * 100 : 0;
           const paymentType = getPaymentType(f);
+
+          // Check if this is XCP-420 compliant
+          const isXCP420 = (
+            f.hard_cap === 10000000 &&
+            f.soft_cap === 4200000 &&
+            parseFloat(f.price_normalized || "0") === 0.1 &&
+            parseFloat(f.quantity_by_price_normalized || "0") === 1000 &&
+            f.max_mint_per_address === 35000 &&
+            f.end_block - f.start_block === 1000 &&
+            f.lock_quantity === true &&
+            f.burn_payment === true
+          );
 
           // Calculate time display based on status
           let timeDisplay = '';
@@ -239,19 +258,33 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
           const blocksRemaining = f.end_block > 0 ? f.end_block - currentBlock : null;
           const isEndingSoon = blocksRemaining !== null && blocksRemaining > 0 && blocksRemaining < 100;
 
+          // Check if fully minted (100% progress)
+          const isFullyMinted = progress >= 100 && tab === "closed";
+
           return (
             <Link
               key={f.tx_hash}
               href={`/mint/${f.tx_hash}`}
-              className="block border border-gray-200 rounded-lg hover:shadow-lg transition-shadow bg-white overflow-hidden"
+              className={`block rounded-lg hover:shadow-lg transition-shadow bg-white overflow-hidden relative ${
+                isXCP420 ? "" : "border-2 border-gray-200"
+              }`}
+              style={
+                isXCP420 ? {
+                  background: "white",
+                  padding: "2px",
+                  backgroundImage: "linear-gradient(45deg, #22c55e, #3b82f6, #a855f7, #ec4899, #22c55e)",
+                  backgroundSize: "300% 300%",
+                  animation: "holographic 3s ease infinite"
+                } : {}
+              }
             >
-              <div className="flex flex-col md:flex-row">
+              <div className={`${isXCP420 ? "bg-white rounded-lg" : ""} flex flex-col md:flex-row`}>
                 <div className="flex gap-4 flex-grow md:w-1/3 p-4">
                   <div className="flex-shrink-0">
                     <img
                       src={`https://app.xcp.io/img/full/${f.asset}`}
                       alt={f.asset}
-                      className="w-20 h-20 object-cover rounded-lg"
+                      className="w-20 h-20 object-contain rounded-lg"
                     />
                   </div>
 
@@ -285,6 +318,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                       <div className="flex-1 bg-gray-200 rounded-full h-2.5">
                         <div
                           className={`h-2.5 rounded-full transition-all ${
+                            isFullyMinted ? "bg-gradient-to-r from-blue-500 to-green-500" :
                             paymentType === "burn" ? "bg-gradient-to-r from-orange-500 to-red-500" :
                             paymentType === "mint-btc" ? "bg-gradient-to-r from-yellow-500 to-orange-500" :
                             "bg-gradient-to-r from-blue-500 to-purple-500"
@@ -299,8 +333,8 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                   </div>
                 </div>
 
-                <div className="flex items-center border-t md:border-t-0 md:border-l border-gray-200 p-4 md:w-2/3 bg-gray-50">
-                  <div className="grid grid-cols-3 gap-x-4 gap-y-3 w-full">
+                <div className="flex items-center border-t md:border-t-0 md:border-l border-gray-200 md:w-2/3 bg-gray-50 rounded-b-lg md:rounded-bl-none md:rounded-r-lg">
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-3 flex-1 p-4">
                     {/* First row */}
                     <div>
                       <div className="text-xs text-gray-500 mb-0.5">Minted</div>
@@ -324,7 +358,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                         // Both premint and commission - show side by side
                         <div className="flex gap-2">
                           <div className="flex-1">
-                            <div className="text-xs text-gray-500 mb-0.5">Premint</div>
+                            <div className="text-xs text-gray-500 mb-0.5">Premine</div>
                             <div className="text-sm font-semibold text-gray-900">
                               {formatNumber(parseFloat(f.premint_quantity_normalized))}
                             </div>
@@ -342,7 +376,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                       ) : parseFloat(f.premint_quantity_normalized) > 0 ? (
                         // Only premint
                         <>
-                          <div className="text-xs text-gray-500 mb-0.5">Premint</div>
+                          <div className="text-xs text-gray-500 mb-0.5">Premine</div>
                           <div className="text-sm font-semibold text-gray-900">
                             {formatNumber(parseFloat(f.premint_quantity_normalized))}
                           </div>
@@ -375,7 +409,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                               if (price === 0) return "0 XCP";
                               // Format to 8 decimals and remove trailing zeros
                               const formatted = price.toFixed(8).replace(/\.?0+$/, '');
-                              return `${formatted} XCP`;
+                              return `${paymentType === "burn" ? "🔥 " : ""}${formatted} XCP`;
                             })()}
                       </div>
                     </div>
@@ -408,7 +442,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                       </div>
                       <div className="text-sm font-semibold text-gray-900">
                         {f.lock_quantity || f.lock_description ? (
-                          <div className="flex gap-1">
+                          <div className="flex gap-1.5">
                             {f.lock_quantity && (
                               <span className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded">
                                 🔒 Yes
@@ -425,6 +459,21 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices 
                         ) : null}
                       </div>
                     </div>
+                  </div>
+                  <div className="flex items-center px-4 border-l border-gray-200">
+                    <button
+                      className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+                      style={{ backgroundColor: "#161624" }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1a1b2e"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#161624"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(`https://horizon.market/explorer/tx/${f.tx_hash}`, '_blank', 'noopener,noreferrer');
+                      }}
+                    >
+                      ↗️ View TX
+                    </button>
                   </div>
                 </div>
               </div>

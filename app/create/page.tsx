@@ -234,7 +234,7 @@ export default function CreateCoin() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Premint Quantity
+                Premine Quantity
               </label>
               <input
                 type="text"

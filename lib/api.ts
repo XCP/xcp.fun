@@ -26,8 +26,11 @@ export async function fetchFairmintsFor(txHash: string) {
   const url = `${BASE}/fairminters/${txHash}/fairmints?verbose=true&limit=100`;
   const res = await fetch(url, { next: { revalidate: 15 }});
   if (!res.ok) throw new Error(`fetchFairmintsFor(${txHash}) ${res.status}`);
-  const { result } = await res.json();
-  return result as Fairmint[];
+  const data = await res.json();
+  return {
+    mints: data.result as Fairmint[],
+    total: data.result_count || data.result.length
+  };
 }
 
 // Optional: mempool strip

@@ -5,8 +5,15 @@ export function formatNumber(num: number | null | undefined): string {
     return '0';
   }
 
+  if (num < 1) {
+    // For numbers less than 1, show up to 4 decimal places
+    // Remove trailing zeros
+    const formatted = num.toFixed(4);
+    return parseFloat(formatted).toString();
+  }
+
   if (num < 1000) {
-    // Ensure no scientific notation for small numbers
+    // For numbers 1-999, show integers
     return num.toFixed(0);
   }
 

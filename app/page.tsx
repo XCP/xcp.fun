@@ -16,6 +16,8 @@ export default async function Home() {
   // No spec filter for now - showing all fairminters
   // To enable XCP-420 filter, uncomment the condition below:
   const isSpecFairminter = (f: any) => {
+    // Filter out assets starting with "A"
+    if (f.asset && f.asset.startsWith("A")) return false;
     return true; // Remove this line and uncomment below to enable filter
     /*
     return (
@@ -39,58 +41,79 @@ export default async function Home() {
     isSpecFairminter(f) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
   );
 
+  // For ashed, XCP-420 fairminters that didn't reach soft cap
+  const ashedFairminters = closedData.filter(f =>
+    isSpecFairminter(f) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
+  );
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="text-center mb-12 mt-4 md:mt-8">
         <h1 className="text-6xl font-bold mb-4">
-          <a href="https://xcp.fun">XCP.FUN</a>
+          <a href="/">XCP.FUN</a>
         </h1>
         <a href="/board" className="text-sm text-gray-500 hover:text-gray-700">
-          View all fairminters →
+          🔬 View all fairminters →
         </a>
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-6 mb-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-lg">XCP-420 Standard</h3>
-          <a
-            href="/create?preset=xcp420"
-            className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs md:text-sm"
-          >
-            🎲 Roll Your Own
-          </a>
+      <div className="relative rounded-lg p-0.5" style={{
+        backgroundImage: "linear-gradient(45deg, #22c55e, #3b82f6, #a855f7, #ec4899, #22c55e)",
+        backgroundSize: "300% 300%",
+        animation: "holographic 3s ease infinite"
+      }}>
+        <div className="bg-gray-50 rounded-lg p-6">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="font-bold text-lg">XCP-420 Standard</h3>
+            <a
+              href="/create?preset=xcp420"
+              className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs md:text-sm"
+            >
+              🎲 Roll One
+            </a>
+          </div>
+          <p className="text-gray-600 text-sm">
+            Only fairminters that follow the XCP-420 standard are featured on this page. The standard:
+            <span className="font-mono text-xs block mt-2">
+              <span className="hidden md:inline">
+                10M hard cap • 4.2M soft cap • 1000 earned per mint • 0.1 XCP burned to mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine
+              </span>
+              <span className="md:hidden">
+                10M hard cap • 4.2M soft cap<br />
+                1000 earned per mint • 0.1 XCP burned<br />
+                Max 35 mints per address • 1000 blocks<br />
+                Supply locked • No Premine
+              </span>
+            </span>
+          </p>
         </div>
-        <p className="text-gray-600 text-sm">
-          Fairminters that follow the XCP-420 standard are featured on this page. The standard requires:
-          <span className="font-mono text-xs block mt-2">
-            <span className="hidden md:inline">
-              10M hard cap • 4.2M soft cap • 1000 earned per mint • 0.1 XCP burned to mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine
-            </span>
-            <span className="md:hidden">
-              10M hard cap • 4.2M soft cap<br />
-              1000 earned per mint • 0.1 XCP burned<br />
-              Max 35 mints per address • 1000 blocks<br />
-              Supply locked • No Premine
-            </span>
-          </span>
-        </p>
       </div>
 
-      <div className="bg-amber-50 rounded-lg p-4 mb-8 border border-amber-200">
+      <div className="bg-amber-50 rounded-lg p-4 mt-4 mb-8 border border-amber-200">
         <p className="text-sm text-amber-900">
-          💡 If an XCP-420 mint doesn't reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span>. If it succeeds, the XCP committed is burned.
+          💡 If an XCP-420 mint doesn't reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span>. If it succeeds, the XCP committed gets burned.
         </p>
       </div>
 
       {litFairminters.length > 0 && (
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">🔥 Lit <span className="text-gray-500 font-normal text-lg">(Minting now)</span></h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <img src="/parrot.gif" alt="Party Parrot" className="w-7 h-7" />
+            Lit <span className="text-gray-500 font-normal text-lg">(Minting now)</span>
+          </h2>
           <SpecFairminterGrid
-            fairminters={litFairminters}
+            fairminters={litFairminters.slice(0, 30)}
             currentBlock={currentBlock}
             prices={prices}
             status="lit"
           />
+          {litFairminters.length > 30 && (
+            <div className="text-right">
+              <a href="/board?tab=open&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                View All →
+              </a>
+            </div>
+          )}
         </section>
       )}
 
@@ -98,23 +121,56 @@ export default async function Home() {
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-4">🌿 Rolled Up <span className="text-gray-500 font-normal text-lg">(Upcoming — ready but not lit)</span></h2>
           <SpecFairminterGrid
-            fairminters={rolledUpFairminters}
+            fairminters={rolledUpFairminters.slice(0, 10)}
             currentBlock={currentBlock}
             prices={prices}
             status="rolled"
           />
+          {rolledUpFairminters.length > 10 && (
+            <div className="text-right">
+              <a href="/board?tab=pending&sort=starting-soon" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                View All →
+              </a>
+            </div>
+          )}
         </section>
       )}
 
       {burnedFairminters.length > 0 && (
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">💀 Burned <span className="text-gray-500 font-normal text-lg">(Successful — XCP destroyed, token survives)</span></h2>
+          <h2 className="text-2xl font-bold mb-4">🔥 Burned <span className="text-gray-500 font-normal text-lg">(Successful — XCP destroyed, token survives)</span></h2>
           <SpecFairminterGrid
-            fairminters={burnedFairminters}
+            fairminters={burnedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
             currentBlock={currentBlock}
             prices={prices}
             status="burned"
           />
+          {burnedFairminters.length > 10 && (
+            <div className="text-right">
+              <a href="/board?tab=closed&sort=progress-high" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                View All →
+              </a>
+            </div>
+          )}
+        </section>
+      )}
+
+      {ashedFairminters.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-4">💀 Ashed <span className="text-gray-500 font-normal text-lg">(Failed — XCP refunded, token destroyed)</span></h2>
+          <SpecFairminterGrid
+            fairminters={ashedFairminters.sort((a, b) => b.block_time - a.block_time).slice(0, 10)}
+            currentBlock={currentBlock}
+            prices={prices}
+            status="ashed"
+          />
+          {ashedFairminters.length > 10 && (
+            <div className="text-right">
+              <a href="/board?tab=closed&sort=progress-low" className="inline-block mt-4 text-sm text-gray-500 hover:text-gray-700">
+                View All →
+              </a>
+            </div>
+          )}
         </section>
       )}
     </main>

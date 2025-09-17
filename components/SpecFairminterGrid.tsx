@@ -120,7 +120,7 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
                   <img
                     src={`https://app.xcp.io/img/full/${f.asset}`}
                     alt={f.asset}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    className="w-20 h-20 object-contain rounded-lg"
                   />
                 </div>
 
@@ -141,16 +141,12 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
 
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-gray-200 rounded-full h-2.5 relative">
-                      {/* Soft cap marker at 42% if not reached */}
-                      {f.soft_cap > 0 && f.earned_quantity < f.soft_cap && (
+                      {/* Soft cap marker if not reached */}
+                      {f.soft_cap > 0 && f.earned_quantity < f.soft_cap && f.hard_cap > 0 && (
                         <div
                           className="absolute top-0 bottom-0 w-0.5 bg-gray-400 z-10"
-                          style={{ left: '42%' }}
-                        >
-                          <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-xs text-gray-500 whitespace-nowrap">
-                            soft cap
-                          </span>
-                        </div>
+                          style={{ left: `${(f.soft_cap / f.hard_cap) * 100}%` }}
+                        />
                       )}
                       <div
                         className="h-2.5 rounded-full transition-all bg-gradient-to-r from-orange-500 to-red-500 relative"
@@ -165,33 +161,50 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
               </div>
 
               {/* Right section with streamlined stats */}
-              <div className="flex items-center border-t md:border-t-0 md:border-l border-gray-200 p-4 md:w-1/2 bg-gray-50">
-                <div className="grid grid-cols-3 gap-4 w-full">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-0.5">Per Mint</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {formatNumber(parseFloat(f.quantity_by_price_normalized || "1"))}
+              <div className="flex items-center border-t md:border-t-0 md:border-l border-gray-200 md:w-1/2 bg-gray-50">
+                <div className="flex-1 p-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-0.5">Per Mint</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {formatNumber(parseFloat(f.quantity_by_price_normalized || "1"))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-0.5">Unit Price</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {(() => {
+                          const priceNorm = parseFloat(f.price_normalized || "0");
+                          const qtyNorm = parseFloat(f.quantity_by_price_normalized || "1");
+                          if (priceNorm === 0 || qtyNorm === 0) return "~$0";
+                          const xcpPerUnit = priceNorm / qtyNorm;
+                          const pricePerUnit = xcpPerUnit * prices.xcpBtc * prices.btcUsd;
+                          return `~${formatPrice(pricePerUnit)}`;
+                        })()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-0.5">Max Per Address</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {f.max_mint_per_address === 0 ? "∞" : formatNumber(f.max_mint_per_address)}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-0.5">Unit Price</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {(() => {
-                        const priceNorm = parseFloat(f.price_normalized || "0");
-                        const qtyNorm = parseFloat(f.quantity_by_price_normalized || "1");
-                        if (priceNorm === 0 || qtyNorm === 0) return "~$0";
-                        const xcpPerUnit = priceNorm / qtyNorm;
-                        const pricePerUnit = xcpPerUnit * prices.xcpBtc * prices.btcUsd;
-                        return `~${formatPrice(pricePerUnit)}`;
-                      })()}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-0.5">Max Per Address</div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {f.max_mint_per_address === 0 ? "∞" : formatNumber(f.max_mint_per_address)}
-                    </div>
-                  </div>
+                </div>
+                <div className="flex items-center px-4 border-l border-gray-200">
+                  <button
+                    className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+                    style={{ backgroundColor: "#161624" }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1a1b2e"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#161624"}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(`https://horizon.market/explorer/tx/${f.tx_hash}`, '_blank', 'noopener,noreferrer');
+                    }}
+                  >
+                    ↗️ View TX
+                  </button>
                 </div>
               </div>
             </div>
