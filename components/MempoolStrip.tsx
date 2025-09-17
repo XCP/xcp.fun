@@ -25,7 +25,9 @@ export default async function MempoolStrip() {
           {mints.map((item, i) => (
             <a
               key={`${item.tx_hash}-${i}`}
-              href={`/mint/${item.tx_hash}`}
+              href={`https://horizon.market/explorer/tx/${item.tx_hash}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-xs bg-white/70 px-2 py-1 rounded-full border border-green-200 hover:bg-green-100 transition-colors"
             >
               {item.params.asset}

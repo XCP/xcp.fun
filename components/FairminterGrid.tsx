@@ -3,36 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatNumber, formatPrice } from "@/lib/formatters";
-
-type Fairminter = {
-  tx_hash: string;
-  source: string;
-  asset: string;
-  price: number;
-  max_mint_per_tx: number;
-  max_mint_per_address: number;
-  burn_payment: boolean;
-  earned_quantity: number;
-  hard_cap: number;
-  soft_cap: number;
-  block_time: number;
-  start_block: number;
-  end_block: number;
-  block_index: number;
-  divisible: boolean;
-  lock_quantity: boolean;
-  minted_asset_commission_int: number;
-  description?: string | null;
-  price_normalized?: string;
-  hard_cap_normalized?: string;
-  soft_cap_normalized?: string;
-  earned_quantity_normalized?: string;
-  max_mint_per_tx_normalized?: string;
-  max_mint_per_address_normalized?: string;
-  premint_quantity_normalized?: string;
-  quantity_by_price_normalized?: string;
-  lock_description?: boolean;
-};
+import { isXCP420 } from "@/lib/xcp420";
+import type { Fairminter } from "@/lib/types";
 
 type FairminterGridProps = {
   fairminters: Fairminter[];
@@ -197,20 +169,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
           const paymentType = getPaymentType(f);
 
           // Check if this is XCP-420 compliant
-          // With verbose=true, we always get normalized values
-          const isXCP420 = (
-            f.hard_cap === 10000000 &&
-            f.soft_cap === 4200000 &&
-            parseFloat(f.price_normalized!) === 0.1 &&
-            parseFloat(f.quantity_by_price_normalized!) === 1000 &&
-            parseFloat(f.max_mint_per_address_normalized!) <= 35000 && // Max 35 mints (35,000 tokens) per address
-            parseFloat(f.max_mint_per_address_normalized!) > 0 && // Must have a per-address limit
-            f.max_mint_per_tx === f.max_mint_per_address && // Allow all mints in one tx
-            f.end_block - f.start_block === 1000 && // Exactly 1000 blocks duration
-            f.lock_quantity === true &&
-            f.burn_payment === true &&
-            f.divisible === true // 8 decimal places
-          );
+          const isXCP420Compliant = isXCP420(f);
 
           // Calculate time display based on status
           let timeDisplay = '';
@@ -268,10 +227,10 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
             <div
               key={f.tx_hash}
               className={`block rounded-lg bg-white overflow-hidden relative ${
-                isXCP420 ? "" : "border-2 border-gray-200"
+                isXCP420Compliant ? "" : "border-2 border-gray-200"
               }`}
               style={
-                isXCP420 ? {
+                isXCP420Compliant ? {
                   background: "white",
                   padding: "2px",
                   backgroundImage: "linear-gradient(45deg, #22c55e, #3b82f6, #a855f7, #ec4899, #22c55e)",
@@ -280,7 +239,7 @@ export default function FairminterGrid({ fairminters, currentBlock, tab, prices,
                 } : {}
               }
             >
-              <div className={`${isXCP420 ? "bg-white rounded-lg" : ""} flex flex-col`}>
+              <div className={`${isXCP420Compliant ? "bg-white rounded-lg" : ""} flex flex-col`}>
                 <div className="flex flex-col md:flex-row">
                   <div className="flex gap-4 flex-grow md:w-1/3 p-4">
                   <div className="flex-shrink-0">

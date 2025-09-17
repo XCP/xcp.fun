@@ -3,7 +3,7 @@ import Link from "next/link";
 import { fetchFairminters } from "@/lib/api";
 import { getCurrentBlockHeight } from "@/lib/blockHeight";
 import { getPrices } from "@/lib/prices";
-import { Fairminter } from "@/lib/types";
+import { isXCP420 } from "@/lib/xcp420";
 import SpecFairminterGrid from "@/components/SpecFairminterGrid";
 import SkeletonCards from "@/components/SkeletonCards";
 
@@ -17,35 +17,17 @@ export default async function Home() {
   ]);
 
   // Apply XCP-420 filter for homepage
-  const isSpecFairminter = (f: Fairminter) => {
-    // Check if it matches XCP-420 standard
-    // With verbose=true, we always get normalized values
-    return (
-      f.hard_cap === 10000000 &&
-      f.soft_cap === 4200000 &&
-      parseFloat(f.price_normalized!) === 0.1 &&
-      parseFloat(f.quantity_by_price_normalized!) === 1000 &&
-      parseFloat(f.max_mint_per_address_normalized!) <= 35000 && // Max 35 mints (35,000 tokens) per address
-      parseFloat(f.max_mint_per_address_normalized!) > 0 && // Must have a per-address limit
-      f.max_mint_per_tx === f.max_mint_per_address && // Allow all mints in one tx
-      f.end_block - f.start_block === 1000 && // Exactly 1000 blocks duration
-      f.lock_quantity === true &&
-      f.burn_payment === true &&
-      f.divisible === true // 8 decimal places
-    );
-  };
-
-  const litFairminters = openData.filter(isSpecFairminter);
-  const rolledUpFairminters = pendingData.filter(isSpecFairminter);
+  const litFairminters = openData.filter(isXCP420);
+  const rolledUpFairminters = pendingData.filter(isXCP420);
 
   // For burned, we need to check if soft cap was reached (or no soft cap)
   const burnedFairminters = closedData.filter(f =>
-    isSpecFairminter(f) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
+    isXCP420(f) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
   );
 
   // For ashed, XCP-420 fairminters that didn't reach soft cap
   const ashedFairminters = closedData.filter(f =>
-    isSpecFairminter(f) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
+    isXCP420(f) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
   );
 
   return (
