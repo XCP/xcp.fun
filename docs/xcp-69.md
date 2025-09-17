@@ -1,6 +1,6 @@
 # 🍆 XCP-69 Standard (Draft)
 
-XCP-69 is a draft companion to the XCP-420 Standard.
+XCP-69 is a draft companion to the [🌿 XCP-420 Standard](./xcp-420.md).
 
 Where XCP-420 is optimized for safe, low-risk meme launches (achievable thresholds, smaller stakes, and guaranteed burns), XCP-69 is designed for larger, higher-commitment launches. It raises the bar for participation, increases XCP at risk, and introduces a post-mint liquidity pool mechanic.
 
@@ -48,11 +48,15 @@ When orders expire:
 
 ## 🚧 Notes
 
-- **Trustless Limitation:** Current Counterparty protocol can only burn XCP, not pool it
+- **Protocol Limitation:** Max order expiration is 2 months, cannot trustlessly pool XCP
 - **Platform Role:** Requires a service operator to hold pooled XCP, manage DEX orders, and handle burns/dividends
 - **Future Path:** Protocol-level support could one day pool XCP directly into an AMM (true trustless liquidity)
 
 ## 💡 In Short
 
-**XCP-420** = safe, fun, burn-based mints
-**XCP-69** = bigger stakes, pooled liquidity, and a phased path: mint → floor → burn/dividend
+- **XCP-420** = safe, fun, burn-based mints
+- **XCP-69** = bigger stakes, pooled liquidity, and a phased path: mint → floor → burn/dividend
+
+---
+
+🔗 See also: [🌿 XCP-420 Standard](./xcp-420.md)
