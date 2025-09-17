@@ -261,7 +261,7 @@ export default async function FairminterPage({ params }: PageProps) {
         </div>
       </main>
     );
-  } catch (error) {
+  } catch {
     notFound();
   }
 }
