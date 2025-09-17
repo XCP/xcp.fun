@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import FairminterCard from "./FairminterCard";
+import { isXCP420 } from "@/lib/xcp420";
 import type { Fairminter } from "@/lib/types";
 
 type FairminterGridProps = {
@@ -71,6 +72,19 @@ export default function FairminterGrid({
 
   // Sort data
   const sortedData = [...filteredData].sort((a, b) => {
+    // Only prioritize XCP-420 for default state (no custom sort, no filter)
+    const isDefaultState = !customSort && filterType === "all";
+
+    if (isDefaultState && ((tab === "open" && sortBy === "progress-high") || (tab === "pending" && sortBy === "starting-soon"))) {
+      const aIs420 = isXCP420(a) !== false;
+      const bIs420 = isXCP420(b) !== false;
+
+      // If one is XCP-420 and the other isn't, XCP-420 comes first
+      if (aIs420 && !bIs420) return -1;
+      if (!aIs420 && bIs420) return 1;
+      // If both are XCP-420 or both aren't, continue with normal sort
+    }
+
     switch (sortBy) {
       case "newest":
         return b.block_index - a.block_index;

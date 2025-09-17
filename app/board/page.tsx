@@ -27,7 +27,7 @@ export default async function Board({ searchParams }: PageProps) {
             <Link href="/">XCP.FUN</Link>
           </h1>
           <div className="flex gap-6 text-sm text-gray-500">
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               <div>BTC Price</div>
               <div className="font-mono font-bold">${Math.round(prices.btcUsd).toLocaleString()}</div>
             </div>
@@ -35,7 +35,7 @@ export default async function Board({ searchParams }: PageProps) {
               <div>XCP Price</div>
               <div className="font-mono font-bold">${(prices.xcpBtc * prices.btcUsd).toFixed(2)}</div>
             </div>
-            <div className="text-right">
+            <div className="text-right hidden md:block">
               <div>Block Height</div>
               <div className="font-mono font-bold">{currentBlock.toLocaleString()}</div>
             </div>

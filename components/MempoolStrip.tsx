@@ -3,8 +3,8 @@ import { fetchMempoolFairmints } from "@/lib/api";
 
 export default async function MempoolStrip() {
   try {
-    // Fetch extra to check if there are more
-    const items = await fetchMempoolFairmints(30);
+    // Fetch with limit 25
+    const { mints: items, total } = await fetchMempoolFairmints(25);
 
     if (!items || items.length === 0) return null;
 
@@ -14,14 +14,13 @@ export default async function MempoolStrip() {
 
     if (allMints.length === 0) return null;
 
-    // Show first 25
-    const displayMints = allMints.slice(0, 25);
-    const remainingCount = Math.max(0, allMints.length - 25);
+    // Display all fetched (up to 25)
+    const displayMints = allMints;
+    const remainingCount = Math.max(0, total - displayMints.length);
 
     return (
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-center gap-2">
-          <span className="animate-pulse">🟢</span>
           <span className="font-semibold text-sm text-green-900">
             In the Mempool ({allMints.length} {allMints.length === 1 ? 'tx' : 'txs'})
           </span>

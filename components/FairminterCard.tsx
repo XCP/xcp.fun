@@ -240,11 +240,8 @@ export default function FairminterCard({ fairminter: f, currentBlock, prices, ta
                       const pricePerUnit = (btcFeePerMint * prices.btcUsd) / unitsPerMint;
                       return `~${formatPrice(pricePerUnit)}`;
                     } else {
-                      // price_normalized is XCP per mint, not per unit
-                      const xcpPerMint = parseFloat(f.price_normalized || "0");
-                      const unitsPerMint = parseFloat(f.quantity_by_price_normalized || "1");
-                      if (xcpPerMint === 0 || unitsPerMint === 0) return "~$0";
-                      const xcpPerUnit = xcpPerMint / unitsPerMint;
+                      // price_normalized is already XCP per unit/token
+                      const xcpPerUnit = parseFloat(f.price_normalized || "0");
                       const pricePerUnit = xcpPerUnit * prices.xcpBtc * prices.btcUsd;
                       return `~${formatPrice(pricePerUnit)}`;
                     }

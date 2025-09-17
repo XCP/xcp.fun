@@ -59,7 +59,7 @@ export default async function Home() {
             </a>
           </div>
           <p className="text-gray-600 text-sm">
-            Only fairminters that follow the XCP-420 standard are featured on this page. The standard:
+            Only fairminters that follow the XCP-420 standard are featured on this page<span className="hidden md:inline">. The standard:</span>
             <span className="font-mono text-xs block mt-2">
               <span className="hidden md:inline">
                 10M hard cap • 4.2M soft cap • 1000 earned per mint • 0.1 XCP burned to mint • Max 35 mints per address • 1000 blocks • Supply locked • No Premine
@@ -77,7 +77,7 @@ export default async function Home() {
 
       <div className="bg-amber-50 rounded-lg p-4 mt-4 mb-8 border border-amber-200">
         <p className="text-sm text-amber-900">
-          💡 If an XCP-420 mint doesn&apos;t reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span>. If it succeeds, the XCP committed gets burned.
+          💡 If an XCP-420 mint doesn&apos;t reach its 4.2M soft-cap, the Counterparty protocol <span className="font-bold">automatically refunds all XCP to backers</span><span className="hidden md:inline">. If it succeeds, the XCP committed gets burned</span>.
         </p>
       </div>
 

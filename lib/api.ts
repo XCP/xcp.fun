@@ -38,6 +38,9 @@ export async function fetchMempoolFairmints(limit = 30) {
   const url = `${BASE}/mempool/events/NEW_FAIRMINT?limit=${limit}`;
   const res = await fetch(url, { next: { revalidate: 10 }});
   if (!res.ok) throw new Error(`fetchMempoolFairmints ${res.status}`);
-  const { result } = await res.json();
-  return result as Array<{ params?: { asset?: string }, tx_hash?: string }>;
+  const data = await res.json();
+  return {
+    mints: data.result as Array<{ params?: { asset?: string }, tx_hash?: string }>,
+    total: data.result_count || data.result.length
+  };
 }
