@@ -8,26 +8,26 @@ import SpecFairminterGrid from "@/components/SpecFairminterGrid";
 import SkeletonCards from "@/components/SkeletonCards";
 
 export default async function Home() {
-  const [openData, pendingData, closedData, currentBlock, prices] = await Promise.all([
-    fetchFairminters("open"),
-    fetchFairminters("pending"),
-    fetchFairminters("closed"),
+  const [allFairminters, currentBlock, prices] = await Promise.all([
+    fetchFairminters("all"),
     getCurrentBlockHeight(),
     getPrices()
   ]);
 
-  // Apply XCP-420 filter for homepage (both strict and loose)
-  const litFairminters = openData.filter(f => hasXCP420Compliance(isXCP420(f)));
-  const rolledUpFairminters = pendingData.filter(f => hasXCP420Compliance(isXCP420(f)));
+  // Filter for XCP-420 compliant fairminters only
+  const xcp420Fairminters = allFairminters.filter(f => hasXCP420Compliance(isXCP420(f)));
 
-  // For burned, we need to check if soft cap was reached (or no soft cap)
-  const burnedFairminters = closedData.filter(f =>
-    hasXCP420Compliance(isXCP420(f)) && (f.soft_cap === 0 || f.earned_quantity >= f.soft_cap)
+  // Split by status
+  const litFairminters = xcp420Fairminters.filter(f => f.status === 'open');
+  const rolledUpFairminters = xcp420Fairminters.filter(f => f.status === 'pending');
+
+  // For closed, split into burned (successful) and ashed (failed)
+  const closedFairminters = xcp420Fairminters.filter(f => f.status === 'closed');
+  const burnedFairminters = closedFairminters.filter(f =>
+    f.soft_cap === 0 || f.earned_quantity >= f.soft_cap
   );
-
-  // For ashed, XCP-420 fairminters that didn't reach soft cap
-  const ashedFairminters = closedData.filter(f =>
-    hasXCP420Compliance(isXCP420(f)) && f.soft_cap > 0 && f.earned_quantity < f.soft_cap
+  const ashedFairminters = closedFairminters.filter(f =>
+    f.soft_cap > 0 && f.earned_quantity < f.soft_cap
   );
 
   return (
