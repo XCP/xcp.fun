@@ -34,10 +34,10 @@ export async function fetchFairmintsFor(txHash: string) {
 }
 
 // Optional: mempool strip
-export async function fetchMempoolFairmints(limit = 20) {
-  const url = `${BASE}/mempool/events/NEW_FAIRMINT`;
+export async function fetchMempoolFairmints(limit = 30) {
+  const url = `${BASE}/mempool/events/NEW_FAIRMINT?limit=${limit}`;
   const res = await fetch(url, { next: { revalidate: 10 }});
   if (!res.ok) throw new Error(`fetchMempoolFairmints ${res.status}`);
   const { result } = await res.json();
-  return (result as Array<{ params?: { asset?: string }, tx_hash?: string }>).slice(0, limit);
+  return result as Array<{ params?: { asset?: string }, tx_hash?: string }>;
 }
