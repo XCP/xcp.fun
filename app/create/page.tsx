@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-export default function CreateCoin() {
+function CreateCoinContent() {
   const searchParams = useSearchParams();
   const preset = searchParams.get("preset");
 
@@ -328,5 +328,13 @@ export default function CreateCoin() {
         </div>
       </form>
     </main>
+  );
+}
+
+export default function CreateCoin() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CreateCoinContent />
+    </Suspense>
   );
 }
