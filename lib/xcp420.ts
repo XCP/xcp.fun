@@ -19,14 +19,23 @@ export function isXCP420(fairminter: Fairminter): XCP420Compliance {
   // Use minted_asset_commission_int which is what the API returns
   const commission = fairminter.minted_asset_commission_int ?? 0;
 
+  // Check soft_cap_deadline_block validity
+  // Strict: must be exactly end_block - 1
+  // Loose: must be within 100 blocks of end_block (but still less than end_block)
+  const deadlineValid = fairminter.soft_cap_deadline_block < fairminter.end_block;
+  const deadlineStrictValid = fairminter.soft_cap_deadline_block === fairminter.end_block - 1;
+  const deadlineLooseValid = deadlineValid &&
+    (fairminter.end_block - fairminter.soft_cap_deadline_block) <= 100;
+
   // Check core XCP-420 parameters (required for both strict and loose)
+  // For loose mode, we accept flexible deadline within 100 blocks
   const coreCompliant = (
     fairminter.hard_cap === 1000000000000000 &&                    // 10M tokens with 8 decimals
     fairminter.soft_cap === 420000000000000 &&                     // 4.2M tokens with 8 decimals
     fairminter.price === 10000000 &&                               // 0.1 XCP in satoshis
     fairminter.quantity_by_price === 100000000000 &&               // 1000 tokens with 8 decimals
     fairminter.end_block - fairminter.start_block === 1000 &&      // Exactly 1000 blocks duration
-    fairminter.soft_cap_deadline_block === fairminter.end_block - 1 && // Deadline is end - 1
+    deadlineLooseValid &&                                          // Deadline within acceptable range
     fairminter.burn_payment === true &&                            // XCP is burned
     fairminter.lock_quantity === true &&                           // Supply locked
     fairminter.divisible === true &&                               // 8 decimal places
@@ -38,11 +47,14 @@ export function isXCP420(fairminter: Fairminter): XCP420Compliance {
     return false;
   }
 
-  // Check strict requirements for per-address/tx limits
+  // Check strict requirements:
+  // 1. Per-address/tx limits must be properly set
+  // 2. Deadline must be exactly end_block - 1
   const strictCompliant = (
     fairminter.max_mint_per_address > 0 &&                         // Must have a per-address limit
     fairminter.max_mint_per_address <= 3500000000000 &&            // Max 35k tokens
-    fairminter.max_mint_per_tx === fairminter.max_mint_per_address // Allow all mints in one tx
+    fairminter.max_mint_per_tx === fairminter.max_mint_per_address && // Allow all mints in one tx
+    deadlineStrictValid                                            // Deadline exactly end - 1
   );
 
   if (strictCompliant) {

@@ -1,31 +1,8 @@
 "use client";
 
 import { formatNumber, formatPrice } from "@/lib/formatters";
-
-type Fairminter = {
-  tx_hash: string;
-  source: string;
-  asset: string;
-  price: number;
-  hard_cap: number;
-  soft_cap: number;
-  burn_payment: boolean;
-  earned_quantity: number;
-  block_time: number;
-  start_block: number;
-  end_block: number;
-  block_index: number;
-  divisible: boolean;
-  lock_quantity: boolean;
-  minted_asset_commission_int: number;
-  max_mint_per_address: number;
-  description?: string | null;
-  price_normalized?: string;
-  hard_cap_normalized?: string;
-  soft_cap_normalized?: string;
-  earned_quantity_normalized?: string;
-  quantity_by_price_normalized?: string;
-};
+import { isXCP420 } from "@/lib/xcp420";
+import type { Fairminter } from "@/lib/types";
 
 type SpecFairminterGridProps = {
   fairminters: Fairminter[];
@@ -184,7 +161,23 @@ export default function SpecFairminterGrid({ fairminters, currentBlock, prices, 
                     <div>
                       <div className="text-xs text-gray-500 mb-0.5">Max Per Address</div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {f.max_mint_per_address === 0 ? "∞" : formatNumber(f.max_mint_per_address)}
+                        {(() => {
+                          const compliance = isXCP420(f);
+
+                          // For strict compliance, show max_mint_per_address
+                          if (compliance === "strict") {
+                            return formatNumber(f.max_mint_per_address / 100000000);
+                          }
+
+                          // For loose compliance, make intelligent choice
+                          if (f.max_mint_per_address > 0) {
+                            return formatNumber(f.max_mint_per_address / 100000000);
+                          } else if (f.max_mint_per_tx && f.max_mint_per_tx > 0) {
+                            return formatNumber(f.max_mint_per_tx / 100000000);
+                          } else {
+                            return "∞";
+                          }
+                        })()}
                       </div>
                     </div>
                   </div>
