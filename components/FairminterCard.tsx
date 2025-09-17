@@ -97,7 +97,9 @@ export default function FairminterCard({ fairminter: f, currentBlock, prices, ta
             <div className="flex-1 space-y-2">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold text-gray-900">{f.asset}</h2>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {f.asset} {paymentType === "burn" && "🔥"}
+                  </h2>
                 </div>
                 <div className="flex gap-1">
                   {isEndingSoon && (
@@ -220,13 +222,7 @@ export default function FairminterCard({ fairminter: f, currentBlock, prices, ta
                 <div className="text-sm font-semibold text-gray-900">
                   {paymentType === "mint-btc"
                     ? formatNumber(parseFloat(f.max_mint_per_tx_normalized || "0"))
-                    : (() => {
-                        const price = parseFloat(f.price_normalized || "0");
-                        if (price === 0) return "0 XCP";
-                        // Format to 8 decimals and remove trailing zeros
-                        const formatted = price.toFixed(8).replace(/\.?0+$/, '');
-                        return `${paymentType === "burn" ? "🔥 " : ""}${formatted} XCP`;
-                      })()}
+                    : formatNumber(parseFloat(f.quantity_by_price_normalized || "1"))}
                 </div>
               </div>
               <div>
