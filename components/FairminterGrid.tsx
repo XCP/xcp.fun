@@ -39,6 +39,7 @@ export default function FairminterGrid({
 
   // Track if sort has been manually changed from default
   const [customSort, setCustomSort] = useState<string | null>(initialSort || null);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [filterType, setFilterType] = useState<"all" | "xcp-burn" | "xcp-mint" | "btc-mint">(
     (initialFilter as "all" | "xcp-burn" | "xcp-mint" | "btc-mint" | undefined) || "all"
   );
@@ -50,6 +51,7 @@ export default function FairminterGrid({
   // Handle tab change - clear custom sort
   const handleTabChange = (newTab: string) => {
     setCustomSort(null); // Clear custom sort when changing tabs
+    setHasUserInteracted(false); // Reset user interaction flag
     router.push(`/board?tab=${newTab}`);
   };
 
@@ -72,8 +74,8 @@ export default function FairminterGrid({
 
   // Sort data
   const sortedData = [...filteredData].sort((a, b) => {
-    // Only prioritize XCP-420 for default state (no custom sort, no filter)
-    const isDefaultState = !customSort && filterType === "all";
+    // Only prioritize XCP-420 for truly default state (no user interaction)
+    const isDefaultState = !hasUserInteracted;
 
     if (isDefaultState && ((tab === "open" && sortBy === "progress-high") || (tab === "pending" && sortBy === "starting-soon"))) {
       const aIs420 = isXCP420(a) !== false;
@@ -150,7 +152,10 @@ export default function FairminterGrid({
           <div className="flex gap-2">
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as typeof filterType)}
+              onChange={(e) => {
+                setFilterType(e.target.value as typeof filterType);
+                setHasUserInteracted(true);
+              }}
               className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             >
               <option value="all">All</option>
@@ -161,7 +166,10 @@ export default function FairminterGrid({
 
             <select
               value={sortBy}
-              onChange={(e) => setCustomSort(e.target.value)}
+              onChange={(e) => {
+                setCustomSort(e.target.value);
+                setHasUserInteracted(true);
+              }}
               className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             >
               <option value="newest">Newest First</option>
